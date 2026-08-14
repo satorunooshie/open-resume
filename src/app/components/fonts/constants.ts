@@ -51,12 +51,13 @@ type EnglishFontFamily = (typeof ENGLISH_FONT_FAMILIES)[number];
 
 export const NON_ENGLISH_FONT_FAMILIES = ["NotoSansSC"] as const;
 type NonEnglishFontFamily = (typeof NON_ENGLISH_FONT_FAMILIES)[number];
+export const CJK_FONT_FAMILY: NonEnglishFontFamily = "NotoSansSC";
 
 export const NON_ENGLISH_FONT_FAMILY_TO_LANGUAGE: Record<
   NonEnglishFontFamily,
   string[]
 > = {
-  NotoSansSC: ["zh", "zh-CN", "zh-TW"],
+  NotoSansSC: ["zh", "zh-CN", "zh-TW", "ja", "ja-JP"],
 };
 
 export type FontFamily = EnglishFontFamily | NonEnglishFontFamily;
@@ -91,5 +92,5 @@ export const FONT_FAMILY_TO_DISPLAY_NAME: Record<FontFamily, string> = {
   PlayfairDisplay: "Playfair Display",
   Merriweather: "Merriweather",
   // Non-English Fonts
-  NotoSansSC: "思源黑体(简体)",
+  NotoSansSC: "Noto Sans CJK",
 };
