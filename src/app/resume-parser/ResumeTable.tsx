@@ -3,6 +3,7 @@ import type { Resume } from "lib/redux/types";
 import { initialEducation, initialWorkExperience } from "lib/redux/resumeSlice";
 import { deepClone } from "lib/deep-clone";
 import { cx } from "lib/cx";
+import { getProfileUrls } from "lib/redux/profile";
 
 const TableRowHeader = ({ children }: { children: React.ReactNode }) => (
   <tr className="divide-x bg-gray-50">
@@ -64,7 +65,7 @@ export const ResumeTable = ({ resume }: { resume: Resume }) => {
         <TableRow label="Email" value={resume.profile.email} />
         <TableRow label="Phone" value={resume.profile.phone} />
         <TableRow label="Location" value={resume.profile.location} />
-        <TableRow label="Link" value={resume.profile.url} />
+        <TableRow label="Links" value={getProfileUrls(resume.profile)} />
         <TableRow label="Summary" value={resume.profile.summary} />
         <TableRowHeader>Education</TableRowHeader>
         {educations.map((education, idx) => (
@@ -88,8 +89,14 @@ export const ResumeTable = ({ resume }: { resume: Resume }) => {
         {workExperiences.map((workExperience, idx) => (
           <Fragment key={idx}>
             <TableRow label="Company" value={workExperience.company} />
+            <TableRow label="Company URL" value={workExperience.companyUrl} />
+            <TableRow
+              label="Company Description"
+              value={workExperience.companyDescription}
+            />
             <TableRow label="Job Title" value={workExperience.jobTitle} />
             <TableRow label="Date" value={workExperience.date} />
+            <TableRow label="Summary" value={workExperience.summary} />
             <TableRow
               label="Descriptions"
               value={workExperience.descriptions}
@@ -107,7 +114,9 @@ export const ResumeTable = ({ resume }: { resume: Resume }) => {
         {resume.projects.map((project, idx) => (
           <Fragment key={idx}>
             <TableRow label="Project" value={project.project} />
+            <TableRow label="Project URL" value={project.projectUrl} />
             <TableRow label="Date" value={project.date} />
+            <TableRow label="Summary" value={project.summary} />
             <TableRow
               label="Descriptions"
               value={project.descriptions}

@@ -1,67 +1,37 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "lib/redux/store";
 import type {
-  FeaturedSkill,
   Resume,
   ResumeEducation,
   ResumeProfile,
   ResumeProject,
-  ResumeSkills,
   ResumeWorkExperience,
 } from "lib/redux/types";
 import type { ShowForm } from "lib/redux/settingsSlice";
+import {
+  getProfileUrlInputValues,
+  normalizeProfileUrls,
+} from "lib/redux/profile";
+import { normalizeProjects } from "lib/redux/project";
+import { normalizeWorkExperiences } from "lib/redux/work-experience";
+import {
+  initialEducation,
+  initialProject,
+  initialResumeState,
+  initialWorkExperience,
+} from "lib/redux/resume-state";
 
-export const initialProfile: ResumeProfile = {
-  name: "",
-  summary: "",
-  email: "",
-  phone: "",
-  location: "",
-  url: "",
-};
-
-export const initialWorkExperience: ResumeWorkExperience = {
-  company: "",
-  jobTitle: "",
-  date: "",
-  descriptions: [],
-};
-
-export const initialEducation: ResumeEducation = {
-  school: "",
-  degree: "",
-  gpa: "",
-  date: "",
-  descriptions: [],
-};
-
-export const initialProject: ResumeProject = {
-  project: "",
-  date: "",
-  descriptions: [],
-};
-
-export const initialFeaturedSkill: FeaturedSkill = { skill: "", rating: 4 };
-export const initialFeaturedSkills: FeaturedSkill[] = Array(6).fill({
-  ...initialFeaturedSkill,
-});
-export const initialSkills: ResumeSkills = {
-  featuredSkills: initialFeaturedSkills,
-  descriptions: [],
-};
-
-export const initialCustom = {
-  descriptions: [],
-};
-
-export const initialResumeState: Resume = {
-  profile: initialProfile,
-  workExperiences: [initialWorkExperience],
-  educations: [initialEducation],
-  projects: [initialProject],
-  skills: initialSkills,
-  custom: initialCustom,
-};
+export {
+  initialCustom,
+  initialEducation,
+  initialFeaturedSkill,
+  initialFeaturedSkills,
+  initialProfile,
+  initialProject,
+  initialResumeState,
+  initialSkills,
+  initialWorkExperience,
+} from "lib/redux/resume-state";
 
 // Keep the field & value type in sync with CreateHandleChangeArgsWithDescriptions (components\ResumeForm\types.ts)
 export type CreateChangeActionWithDescriptions<T> = {
@@ -80,10 +50,35 @@ export const resumeSlice = createSlice({
   reducers: {
     changeProfile: (
       draft,
-      action: PayloadAction<{ field: keyof ResumeProfile; value: string }>
+      action: PayloadAction<{
+        field: Exclude<keyof ResumeProfile, "urls">;
+        value: string;
+      }>
     ) => {
       const { field, value } = action.payload;
       draft.profile[field] = value;
+      if (field === "url") {
+        draft.profile.urls = value ? [value] : [];
+      }
+    },
+    changeProfileUrl: (
+      draft,
+      action: PayloadAction<{ idx: number; value: string }>
+    ) => {
+      const { idx, value } = action.payload;
+      const urls = getProfileUrlInputValues(draft.profile);
+      urls[idx] = value;
+      draft.profile.urls = urls;
+      draft.profile.url = urls[0] ?? "";
+    },
+    addProfileUrl: (draft) => {
+      draft.profile.urls = [...getProfileUrlInputValues(draft.profile), ""];
+    },
+    deleteProfileUrlByIdx: (draft, action: PayloadAction<{ idx: number }>) => {
+      const urls = getProfileUrlInputValues(draft.profile);
+      urls.splice(action.payload.idx, 1);
+      draft.profile.urls = urls.length > 0 ? urls : [""];
+      draft.profile.url = draft.profile.urls[0] ?? "";
     },
     changeWorkExperiences: (
       draft,
@@ -194,14 +189,21 @@ export const resumeSlice = createSlice({
         draft[form].splice(idx, 1);
       }
     },
-    setResume: (draft, action: PayloadAction<Resume>) => {
-      return action.payload;
+    setResume: (_draft, action: PayloadAction<Resume>) => {
+      const resume = structuredClone(action.payload);
+      normalizeProfileUrls(resume.profile);
+      normalizeWorkExperiences(resume.workExperiences);
+      normalizeProjects(resume.projects);
+      return resume;
     },
   },
 });
 
 export const {
   changeProfile,
+  changeProfileUrl,
+  addProfileUrl,
+  deleteProfileUrlByIdx,
   changeWorkExperiences,
   changeEducations,
   changeProjects,

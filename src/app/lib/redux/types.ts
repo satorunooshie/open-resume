@@ -3,14 +3,18 @@ export interface ResumeProfile {
   email: string;
   phone: string;
   url: string;
+  urls: string[];
   summary: string;
   location: string;
 }
 
 export interface ResumeWorkExperience {
   company: string;
+  companyUrl: string;
+  companyDescription: string;
   jobTitle: string;
   date: string;
+  summary: string;
   descriptions: string[];
 }
 
@@ -24,7 +28,9 @@ export interface ResumeEducation {
 
 export interface ResumeProject {
   project: string;
+  projectUrl: string;
   date: string;
+  summary: string;
   descriptions: string[];
 }
 

@@ -1,6 +1,7 @@
 import { Form, FormSection } from "components/ResumeForm/Form";
 import {
   Input,
+  Textarea,
   BulletListTextarea,
 } from "components/ResumeForm/Form/InputGroup";
 import type { CreateHandleChangeArgsWithDescriptions } from "components/ResumeForm/types";
@@ -15,55 +16,77 @@ export const ProjectsForm = () => {
 
   return (
     <Form form="projects" addButtonText="Add Project">
-      {projects.map(({ project, date, descriptions }, idx) => {
-        const handleProjectChange = (
-          ...[
-            field,
-            value,
-          ]: CreateHandleChangeArgsWithDescriptions<ResumeProject>
+      {projects.map(
+        (
+          { project, projectUrl = "", date, summary = "", descriptions },
+          idx
         ) => {
-          dispatch(changeProjects({ idx, field, value } as any));
-        };
-        const showMoveUp = idx !== 0;
-        const showMoveDown = idx !== projects.length - 1;
+          const handleProjectChange = (
+            ...[
+              field,
+              value,
+            ]: CreateHandleChangeArgsWithDescriptions<ResumeProject>
+          ) => {
+            dispatch(changeProjects({ idx, field, value } as any));
+          };
+          const showMoveUp = idx !== 0;
+          const showMoveDown = idx !== projects.length - 1;
 
-        return (
-          <FormSection
-            key={idx}
-            form="projects"
-            idx={idx}
-            showMoveUp={showMoveUp}
-            showMoveDown={showMoveDown}
-            showDelete={showDelete}
-            deleteButtonTooltipText={"Delete project"}
-          >
-            <Input
-              name="project"
-              label="Project Name"
-              placeholder="OpenResume"
-              value={project}
-              onChange={handleProjectChange}
-              labelClassName="col-span-4"
-            />
-            <Input
-              name="date"
-              label="Date"
-              placeholder="Winter 2022"
-              value={date}
-              onChange={handleProjectChange}
-              labelClassName="col-span-2"
-            />
-            <BulletListTextarea
-              name="descriptions"
-              label="Description"
-              placeholder="Bullet points"
-              value={descriptions}
-              onChange={handleProjectChange}
-              labelClassName="col-span-full"
-            />
-          </FormSection>
-        );
-      })}
+          return (
+            <FormSection
+              key={idx}
+              form="projects"
+              idx={idx}
+              showMoveUp={showMoveUp}
+              showMoveDown={showMoveDown}
+              showDelete={showDelete}
+              deleteButtonTooltipText={"Delete project"}
+            >
+              <Input
+                name="project"
+                label="Project Name"
+                placeholder="OpenResume"
+                value={project}
+                onChange={handleProjectChange}
+                labelClassName="col-span-4"
+              />
+              <Input
+                name="date"
+                label="Date"
+                placeholder="Winter 2022"
+                value={date}
+                onChange={handleProjectChange}
+                labelClassName="col-span-2"
+              />
+              <Input
+                name="projectUrl"
+                label="Project URL"
+                placeholder="open-resume.com"
+                value={projectUrl}
+                onChange={handleProjectChange}
+                labelClassName="col-span-full"
+              />
+              <Textarea
+                name="summary"
+                label="Summary"
+                placeholder="Short summary of the project, ownership, or impact"
+                value={summary}
+                onChange={handleProjectChange}
+                labelClassName="col-span-full"
+              />
+              <BulletListTextarea
+                name="descriptions"
+                label="Description"
+                placeholder="Bullet points"
+                value={descriptions}
+                onChange={handleProjectChange}
+                labelClassName="col-span-full"
+                showHeadingButton={true}
+              />
+            </FormSection>
+          );
+        }
+      )}
     </Form>
   );
 };

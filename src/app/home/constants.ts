@@ -16,12 +16,16 @@ export const END_HOME_RESUME: Resume = {
     phone: "123-456-7890",
     location: "NYC, NY",
     url: "linkedin.com/in/john-doe",
+    urls: ["linkedin.com/in/john-doe"],
   },
   workExperiences: [
     {
       company: "ABC Company",
+      companyUrl: "",
+      companyDescription: "",
       jobTitle: "Software Engineer",
       date: "May 2023 - Present",
+      summary: "",
       descriptions: [
         "Lead a cross-functional team of 5 engineers in developing a search bar, which enables thousands of daily active users to search content across the entire platform",
         "Create stunning home page product demo animations that drives up sign up rate by 20%",
@@ -30,8 +34,11 @@ export const END_HOME_RESUME: Resume = {
     },
     {
       company: "DEF Organization",
+      companyUrl: "",
+      companyDescription: "",
       jobTitle: "Software Engineer Intern",
       date: "Summer 2022",
+      summary: "",
       descriptions: [
         "Re-architected the existing content editor to be mobile responsive that led to a 10% increase in mobile user engagement",
         "Created a progress bar to help users track progress that drove up user retention by 15%",
@@ -40,8 +47,11 @@ export const END_HOME_RESUME: Resume = {
     },
     {
       company: "XYZ University",
+      companyUrl: "",
+      companyDescription: "",
       jobTitle: "Research Assistant",
       date: "Summer 2021",
+      summary: "",
       descriptions: [
         "Devised a new NLP algorithm in text classification that results in 10% accuracy increase",
         "Compiled and presented research findings to a group of 20+ faculty and students",
@@ -64,7 +74,9 @@ export const END_HOME_RESUME: Resume = {
   projects: [
     {
       project: "OpenResume",
+      projectUrl: "",
       date: "Spring 2023",
+      summary: "",
       descriptions: [
         "Created and launched a free resume builder web app that allows thousands of users to create professional resume easily and land their dream jobs",
       ],
