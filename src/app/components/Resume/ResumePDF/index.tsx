@@ -10,6 +10,13 @@ import { DEFAULT_FONT_COLOR } from "lib/redux/settingsSlice";
 import type { Settings, ShowForm } from "lib/redux/settingsSlice";
 import type { Resume } from "lib/redux/types";
 import { SuppressResumePDFErrorMessage } from "components/Resume/ResumePDF/common/SuppressResumePDFErrorMessage";
+import { getResumePDFTextFontFamily } from "components/fonts/lib";
+
+const THEME_COLOR_BAR_HEIGHT = spacing[3.5];
+const RESUME_PAGE_TOP_PADDING = spacing[6];
+const RESUME_PAGE_TOP_PADDING_WITH_THEME = "28.5pt";
+const RESUME_PAGE_SIDE_PADDING = spacing[20];
+const RESUME_PAGE_BOTTOM_PADDING = spacing[8];
 
 /**
  * Note: ResumePDF is supposed to be rendered inside PDFViewer. However,
@@ -48,6 +55,12 @@ export const ResumePDF = ({
     showBulletPoints,
   } = settings;
   const themeColor = settings.themeColor || DEFAULT_FONT_COLOR;
+  const resumePDFTextFontFamily = getResumePDFTextFontFamily(
+    resume,
+    fontFamily,
+    settings
+  );
+  const hasThemeColor = Boolean(settings.themeColor);
 
   const showFormsOrder = formsOrder.filter((form) => formToShow[form]);
 
@@ -57,6 +70,7 @@ export const ResumePDF = ({
         heading={formToHeading["workExperiences"]}
         workExperiences={workExperiences}
         themeColor={themeColor}
+        isPDF={isPDF}
       />
     ),
     educations: () => (
@@ -65,6 +79,7 @@ export const ResumePDF = ({
         educations={educations}
         themeColor={themeColor}
         showBulletPoints={showBulletPoints["educations"]}
+        isPDF={isPDF}
       />
     ),
     projects: () => (
@@ -72,6 +87,7 @@ export const ResumePDF = ({
         heading={formToHeading["projects"]}
         projects={projects}
         themeColor={themeColor}
+        isPDF={isPDF}
       />
     ),
     skills: () => (
@@ -80,6 +96,7 @@ export const ResumePDF = ({
         skills={skills}
         themeColor={themeColor}
         showBulletPoints={showBulletPoints["skills"]}
+        isPDF={isPDF}
       />
     ),
     custom: () => (
@@ -88,6 +105,7 @@ export const ResumePDF = ({
         custom={custom}
         themeColor={themeColor}
         showBulletPoints={showBulletPoints["custom"]}
+        isPDF={isPDF}
       />
     ),
   };
@@ -100,15 +118,25 @@ export const ResumePDF = ({
           style={{
             ...styles.flexCol,
             color: DEFAULT_FONT_COLOR,
-            fontFamily,
+            fontFamily: resumePDFTextFontFamily,
             fontSize: fontSize + "pt",
+            paddingTop: hasThemeColor
+              ? RESUME_PAGE_TOP_PADDING_WITH_THEME
+              : RESUME_PAGE_TOP_PADDING,
+            paddingRight: RESUME_PAGE_SIDE_PADDING,
+            paddingBottom: RESUME_PAGE_BOTTOM_PADDING,
+            paddingLeft: RESUME_PAGE_SIDE_PADDING,
           }}
         >
-          {Boolean(settings.themeColor) && (
+          {hasThemeColor && (
             <View
+              fixed={true}
               style={{
-                width: spacing["full"],
-                height: spacing[3.5],
+                position: "absolute",
+                top: spacing[0],
+                left: spacing[0],
+                right: spacing[0],
+                height: THEME_COLOR_BAR_HEIGHT,
                 backgroundColor: themeColor,
               }}
             />
@@ -116,7 +144,6 @@ export const ResumePDF = ({
           <View
             style={{
               ...styles.flexCol,
-              padding: `${spacing[0]} ${spacing[20]}`,
             }}
           >
             <ResumePDFProfile

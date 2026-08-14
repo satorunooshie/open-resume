@@ -1,5 +1,10 @@
-import { useEffect, useState } from "react";
-import { A4_HEIGHT_PX, LETTER_HEIGHT_PX } from "lib/constants";
+import { useEffect, useState, type RefObject } from "react";
+import {
+  A4_HEIGHT_PX,
+  A4_WIDTH_PX,
+  LETTER_HEIGHT_PX,
+  LETTER_WIDTH_PX,
+} from "lib/constants";
 import { getPxPerRem } from "lib/get-px-per-rem";
 import { CSS_VARIABLES } from "globals-css";
 
@@ -13,13 +18,35 @@ import { CSS_VARIABLES } from "globals-css";
 export const useSetDefaultScale = ({
   setScale,
   documentSize,
+  previewContainerRef,
 }: {
   setScale: (scale: number) => void;
   documentSize: string;
+  previewContainerRef?: RefObject<HTMLElement>;
 }) => {
   const [scaleOnResize, setScaleOnResize] = useState(true);
 
   useEffect(() => {
+    const getPreviewContentWidthPx = () => {
+      const container = previewContainerRef?.current;
+      if (!container) return undefined;
+
+      const containerStyle = window.getComputedStyle(container);
+      const paddingLeft = parseFloat(containerStyle.paddingLeft) || 0;
+      const paddingRight = parseFloat(containerStyle.paddingRight) || 0;
+      return Math.max(0, container.clientWidth - paddingLeft - paddingRight);
+    };
+
+    const getPreviewContentHeightPx = () => {
+      const container = previewContainerRef?.current;
+      if (!container) return undefined;
+
+      const containerStyle = window.getComputedStyle(container);
+      const paddingTop = parseFloat(containerStyle.paddingTop) || 0;
+      const paddingBottom = parseFloat(containerStyle.paddingBottom) || 0;
+      return Math.max(0, container.clientHeight - paddingTop - paddingBottom);
+    };
+
     const getDefaultScale = () => {
       const screenHeightPx = window.innerHeight;
       const PX_PER_REM = getPxPerRem();
@@ -32,14 +59,23 @@ export const useSetDefaultScale = ({
       );
       const resumePadding = parseFloat(CSS_VARIABLES["--resume-padding"]);
       const topAndBottomResumePadding = resumePadding * 2;
-      const defaultResumeHeightRem =
+      const fallbackResumeHeightRem =
         screenHeightRem -
         topNavBarHeightRem -
         resumeControlBarHeight -
         topAndBottomResumePadding;
-      const resumeHeightPx = defaultResumeHeightRem * PX_PER_REM;
+      const fallbackResumeHeightPx = fallbackResumeHeightRem * PX_PER_REM;
       const height = documentSize === "A4" ? A4_HEIGHT_PX : LETTER_HEIGHT_PX;
-      const defaultScale = Math.round((resumeHeightPx / height) * 100) / 100;
+      const width = documentSize === "A4" ? A4_WIDTH_PX : LETTER_WIDTH_PX;
+      const previewContentHeightPx = getPreviewContentHeightPx();
+      const heightScale =
+        (previewContentHeightPx ?? fallbackResumeHeightPx) / height;
+      const previewContentWidthPx = getPreviewContentWidthPx();
+      const widthScale = previewContentWidthPx
+        ? previewContentWidthPx / width
+        : heightScale;
+      const defaultScale =
+        Math.floor(Math.min(heightScale, widthScale) * 100) / 100;
       return defaultScale;
     };
 
@@ -53,10 +89,17 @@ export const useSetDefaultScale = ({
       window.addEventListener("resize", setDefaultScale);
     }
 
+    const resizeObserver =
+      scaleOnResize && previewContainerRef?.current
+        ? new ResizeObserver(setDefaultScale)
+        : undefined;
+    resizeObserver?.observe(previewContainerRef!.current!);
+
     return () => {
       window.removeEventListener("resize", setDefaultScale);
+      resizeObserver?.disconnect();
     };
-  }, [setScale, scaleOnResize, documentSize]);
+  }, [setScale, scaleOnResize, documentSize, previewContainerRef]);
 
   return { scaleOnResize, setScaleOnResize };
 };

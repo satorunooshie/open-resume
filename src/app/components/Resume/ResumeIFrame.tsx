@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Frame from "react-frame-component";
 import {
   A4_HEIGHT_PX,
@@ -69,6 +69,57 @@ const ResumeIframe = ({
     [isA4]
   );
 
+  const width = isA4 ? A4_WIDTH_PX : LETTER_WIDTH_PX;
+  const height = isA4 ? A4_HEIGHT_PX : LETTER_HEIGHT_PX;
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [contentHeight, setContentHeight] = useState(height);
+
+  const updateContentHeight = useCallback(() => {
+    window.requestAnimationFrame(() => {
+      const frameDocument = frameRef.current?.contentDocument;
+      if (!frameDocument?.documentElement || !frameDocument.body) return;
+
+      const nextContentHeight = Math.max(
+        height,
+        frameDocument.documentElement.scrollHeight,
+        frameDocument.body.scrollHeight
+      );
+      setContentHeight((currentHeight) =>
+        currentHeight === nextContentHeight ? currentHeight : nextContentHeight
+      );
+    });
+  }, [height]);
+
+  useEffect(() => {
+    setContentHeight(height);
+  }, [height, documentSize]);
+
+  useEffect(() => {
+    const frame = frameRef.current;
+    const frameDocument = frame?.contentDocument;
+    const FrameResizeObserver = (
+      frame?.contentWindow as
+        | (Window & { ResizeObserver?: typeof ResizeObserver })
+        | null
+    )?.ResizeObserver;
+    if (!frameDocument) return;
+
+    const resizeObserver = new (FrameResizeObserver ?? ResizeObserver)(
+      updateContentHeight
+    );
+    if (frameDocument.documentElement) {
+      resizeObserver.observe(frameDocument.documentElement);
+    }
+    if (frameDocument.body) {
+      resizeObserver.observe(frameDocument.body);
+    }
+    updateContentHeight();
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [updateContentHeight, children]);
+
   if (enablePDFViewer) {
     return (
       <DynamicPDFViewer className="h-full w-full">
@@ -76,14 +127,12 @@ const ResumeIframe = ({
       </DynamicPDFViewer>
     );
   }
-  const width = isA4 ? A4_WIDTH_PX : LETTER_WIDTH_PX;
-  const height = isA4 ? A4_HEIGHT_PX : LETTER_HEIGHT_PX;
 
   return (
     <div
       style={{
-        maxWidth: `${width * scale}px`,
-        maxHeight: `${height * scale}px`,
+        width: `${width * scale}px`,
+        height: `${contentHeight * scale}px`,
       }}
     >
       {/* There is an outer div and an inner div here. The inner div sets the iframe width and uses transform scale to zoom in/out the resume iframe.
@@ -92,14 +141,17 @@ const ResumeIframe = ({
       <div
         style={{
           width: `${width}px`,
-          height: `${height}px`,
+          height: `${contentHeight}px`,
           transform: `scale(${scale})`,
         }}
         className={`origin-top-left bg-white shadow-lg`}
       >
         <Frame
+          ref={frameRef}
           style={{ width: "100%", height: "100%" }}
           initialContent={iframeInitialContent}
+          contentDidMount={updateContentHeight}
+          contentDidUpdate={updateContentHeight}
           // key is used to force component to re-mount when document size changes
           key={isA4 ? "A4" : "LETTER"}
         >
