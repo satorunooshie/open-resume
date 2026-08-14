@@ -6,6 +6,20 @@ The goal of OpenResume is to provide everyone with free access to a modern profe
 
 Official site: [https://open-resume.com](https://open-resume.com)
 
+## Differences From Upstream
+
+This fork is based on the original [xitanggg/open-resume](https://github.com/xitanggg/open-resume) project and keeps the same core resume builder/parser flow. It adds a set of changes focused on Japanese/CJK resumes, richer resume sections, and reliable re-editing after export.
+
+| **Area** | **What This Fork Adds** |
+|---|---|
+| **Japanese/CJK PDF Support** | Automatically uses a CJK-capable PDF font when resume content contains Japanese/CJK text, improves Japanese line wrapping, keeps Japanese punctuation such as `。` and `、` away from awkward line starts, and avoids visible hyphens at PDF wrap points. |
+| **Richer Profile Links** | Supports multiple profile links instead of a single website field, so GitHub, blog, portfolio, LinkedIn, and other links can be managed separately. |
+| **Work Experience Details** | Adds company URL, company description, and role summary fields, with PDF layout updates so company context, job title, dates, and links are easier to scan. |
+| **Project Details** | Adds project URL and summary fields, and renders projects with the same richer structure used by work experience. |
+| **Description Markdown** | Supports fixed markdown-style descriptions for headings, nested bullet lists, and links. This covers common resume text such as section blocks, sub-bullets, and reference links without turning the editor into a general markdown editor. |
+| **PDF Layout & Preview** | Improves page margins, header/footer spacing, section heading page breaks, profile/contact alignment, link layout, and multi-page preview scrolling for both Letter and A4 documents. |
+| **Editable Data Export** | Adds JSON data export/import alongside PDF download. The JSON file stores both resume data and settings, so exported resumes can be imported later and edited without relying on lossy PDF parsing. |
+
 ## ⚒️ Resume Builder
 
 OpenResume's resume builder allows user to create a modern professional resume easily.
